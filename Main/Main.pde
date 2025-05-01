@@ -9,6 +9,7 @@ Individuo agentes[] = new Individuo[200];
 int totalAgentes = 0;
 
 void setup() {
+  frameRate(60);
   size(1200, 800);
   // Inicializa todas as células como vazias
   for (int x = 0; x < tamanho; x++) {
@@ -43,8 +44,12 @@ void draw() {
   int j = int(mouseY / (height / float(tamanho)));
   
   for (Individuo ind: agentes) {
-    if ((frameCount % ind.tempoReacao) == 0){
+    if ((frameCount % ind.tempoReacao) == 0 && ind.estado != Estado.INFECTADO){
     move(ind);
+    } else if ((frameCount % ind.tempoReacao) == 0 && ind.estado == Estado.INFECTADO) {
+      int t = (int) random(1);
+      if(t > 0.8) {
+        infecta();
     }
   }
 
@@ -128,4 +133,17 @@ int IndPos(Individuo i) {
     }
   }
   return -1; // erro, não achou 
+}
+
+void infecta() {
+  //gera uma celula para infectar aleatoriamente
+  int ix = 0;
+  int iy = 0;
+
+  // Garante que não seja (0,0)
+  while (ix == 0 && iy == 0) {
+    ix = int(random(-1, 2)); // -1, 0 ou 1
+    iy = int(random(-1, 2)); // -1, 0 ou 1
+  }
+  
 }
