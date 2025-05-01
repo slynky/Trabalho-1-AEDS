@@ -12,16 +12,16 @@ class Individuo{
   int x;
   int y;
   Estado estado;
-  int tempo_reacao; //random //movimentação e transmissão da doença). Por exemplo, a cada 30 a 120 frames, ele escolhe uma célula vizinha vazia aleatoriamente para se mover.
-  int tempo_infectado;
+  int tempoReacao; //random //movimentação e transmissão da doença). Por exemplo, a cada 30 a 120 frames, ele escolhe uma célula vizinha vazia aleatoriamente para se mover.
+  int tempoInfectado;
   int contador;
   
   Individuo(int x, int y, Estado estado){
     this.x = x;
     this.y = y;
     this.estado = estado;
-    tempo_reacao = int(random(30, 120));
+    tempoReacao = int(random(30, 120));
     contador = 0;
-    tempo_infectado = 0;
+    tempoInfectado = 0;
   }
 }
