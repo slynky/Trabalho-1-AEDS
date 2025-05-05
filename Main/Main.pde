@@ -29,46 +29,67 @@ void setup() {
     }
   }
 }
-
 void draw() {
   background(255);
   MostraGrid();
 
   // Mostra todos os agentes com a cor baseada no estado
+  float l = width / float(tamanho);
+  float h = height / float(tamanho);
+
   for (int i = 0; i < totalAgentes; i++) {
-    //cria o bglh de mostrar eles
+    Individuo ind = agentes[i];
+
+    
+    switch (ind.estado) {
+      case SUSCETIVEL:
+        fill(0, 0, 255); // Azul
+        break;
+      case INFECTADO:
+        fill(255, 0, 0); // Vermelho
+        break;
+      case IMUNE:
+        fill(0, 255, 0); // Verde
+        break;
+    }
+
+    float px = ind.x * l + l / 2;
+    float py = ind.y * h + h / 2;
+    ellipse(px, py, l * 0.8, h * 0.8); // círculo representando o agente
   }
 
   // Descobre a célula clicada
   int i = int(mouseX / (width / float(tamanho)));
   int j = int(mouseY / (height / float(tamanho)));
-  
-  for (Individuo ind: agentes) {
-    if ((frameCount % ind.tempoReacao) == 0 && ind.estado != Estado.INFECTADO){
-    move(ind);
-    } else if ((frameCount % ind.tempoReacao) == 0 && ind.estado == Estado.INFECTADO) {
-      int t = (int) random(1);
-      if(t > 0.8) {
-        infecta();
+
+  for (Individuo ind : agentes) {
+    if (ind == null) continue;
+    if ((frameCount % ind.tempoReacao) == 0) {
+       move();
+    }
+    if ((frameCount % ind.tempoReacao) == 0 && ind.estado == Estado.INFECTADO) {
+      infecta(ind);
     }
   }
 
-  // Se o botão esquerdo for clicado, infecta o agente na célula
-  if (mousePressed && mouseButton == LEFT && i < tamanho && j < tamanho) {
+  // Botão esquerdo: infecta
+  if (mousePressed && mouseButton == LEFT && i < tamanho && j < tamanho && i >= 0 && j >= 0) {
     if (grid[i][j] != -1) {
       int z = grid[i][j];
       agentes[z].estado = Estado.INFECTADO;
     }
   }
 
-  // Se o botão direito for clicado, torna o agente suscetível novamente
-  if (mousePressed && mouseButton == RIGHT && i < tamanho && j < tamanho) {
+  // Botão direito: torna suscetível
+  if (mousePressed && mouseButton == RIGHT && i < tamanho && j < tamanho && i >= 0 && j >= 0) {
     if (grid[i][j] != -1) {
       int z = grid[i][j];
       agentes[z].estado = Estado.SUSCETIVEL;
     }
   }
+  thread("ordenar");
 }
+
 
 // Mostra o grid com cores conforme o estado de cada agente
 void MostraGrid() {
@@ -101,49 +122,36 @@ void MostraGrid() {
   }
 }
 
+void move() {
 
-void move(Individuo i) {
-  // Gera um deslocamento aleatório (exceto ficar parado)
-  int dx = 0;
-  int dy = 0;
-
-  // Garante que não seja (0,0)
-  while (dx == 0 && dy == 0) {
-    dx = int(random(-1, 2)); // -1, 0 ou 1
-    dy = int(random(-1, 2)); // -1, 0 ou 1
-  }
-
-  int nx = i.x + dx;
-  int ny = i.y + dy;
-
-  // Verifica se o novo local está dentro do grid e está livre
-  if (nx >= 0 && nx < tamanho && ny >= 0 && ny < tamanho && grid[nx][ny] == -1) {
-    int idx = IndPos(i);
-    grid[i.x][i.y] = -1;      // libera a posição antiga
-    grid[nx][ny] = idx;       // ocupa a nova
-    i.x = nx;
-    i.y = ny;
-  }
 }
 
-int IndPos(Individuo i) {
-  for (int z = 0; z < totalAgentes; z++) {
-    if (agentes[z] == i) {
-      return z; // encontrou o índice do agente no vetor
-    }
-  }
-  return -1; // erro, não achou 
-}
 
-void infecta() {
-  //gera uma celula para infectar aleatoriamente
-  int ix = 0;
-  int iy = 0;
 
-  // Garante que não seja (0,0)
+void infecta(Individuo ind) {
+  int ix = 0, iy = 0;
+
+  // Gera deslocamento diferente de (0,0)
   while (ix == 0 && iy == 0) {
     ix = int(random(-1, 2)); // -1, 0 ou 1
     iy = int(random(-1, 2)); // -1, 0 ou 1
   }
-  
+
+  int nx = ind.x + ix;
+  int ny = ind.y + iy;
+
+  // Verifica se está dentro do grid
+  if (nx >= 0 && nx < tamanho && ny >= 0 && ny < tamanho) {
+    int alvo = grid[nx][ny];
+    
+    if (alvo != -1) {
+      Individuo vizinho = agentes[alvo];
+      
+      if (vizinho.estado == Estado.SUSCETIVEL) {
+        if (random(1) < 0.8) {
+          vizinho.estado = Estado.INFECTADO;
+        }
+      }
+    }
+  }
 }
