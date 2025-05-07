@@ -9,6 +9,7 @@ class Individuo{
 //Infectado (doente) – Vermelho - (-1)
 //Recuperado (imune) – Verde - 0
 
+  int id;
   int x;
   int y;
   Estado estado;
@@ -17,6 +18,7 @@ class Individuo{
   int contador;
   
   Individuo(int x, int y, Estado estado){
+    this.id = totalAgentes;
     this.x = x;
     this.y = y;
     this.estado = estado;
