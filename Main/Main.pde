@@ -1,3 +1,4 @@
+import java.util.Arrays;
 // Tamanho do grid
 int tamanho = 40;
 
@@ -7,11 +8,11 @@ int grid[][] = new int[tamanho][tamanho];
 // Vetor com até 200 agentes
 Individuo agentes[] = new Individuo[200];
 int totalAgentes = 0;
-int nA = 100; //numero de agentes inicialmente
+int nA = 150; //numero de agentes inicialmente
 
 void setup() {
   frameRate(60);
-  size(1200, 800);
+  size(1200, 900);
   // Inicializa todas as células como vazias
   for (int x = 0; x < tamanho; x++) {
     for (int y = 0; y < tamanho; y++) {
@@ -58,6 +59,7 @@ void draw() {
 
    for (int g = 0; g < totalAgentes; g++) {
     if (agentes[g] == null) continue;
+    
     if ((frameCount % agentes[g].tempoReacao) == 0) {
 
        move(agentes[g] ,g);
@@ -75,8 +77,10 @@ void draw() {
     if (grid[i][j] != -1) {
       int z = grid[i][j];
       agentes[z].estado = Estado.INFECTADO;
+      agentes[z].tempoInfectado = 0;
     } else if (totalAgentes < 200){
         agentes[totalAgentes] = new Individuo(i, j, Estado.INFECTADO);
+        agentes[totalAgentes].tempoInfectado = 0;
         grid[i][j] = totalAgentes;
         totalAgentes++;
 
@@ -99,8 +103,11 @@ void draw() {
     }
   }
   
+  // Cria um array de índices de agentes
+  Individuo[] clone = Arrays.copyOf(agentes, totalAgentes);
+
   
-  ordenar();
+  ordenar(clone);
 
 
   // ranking dos 5 que mais infectaram
@@ -190,7 +197,7 @@ void infecta(int g) {
     if (alvo != -1) {
       Individuo vizinho = agentes[alvo];
       
-      if (vizinho.estado == Estado.SUSCETIVEL) {
+      if (vizinho.estado != Estado.IMUNE && vizinho.estado != Estado.INFECTADO) {
         if (random(1) < 0.8) {
           vizinho.estado = Estado.INFECTADO;
           agentes[g].contador++;

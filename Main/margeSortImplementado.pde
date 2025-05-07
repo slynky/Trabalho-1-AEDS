@@ -2,12 +2,14 @@ Individuo[] top5 = new Individuo[5];
 int i = -1, j = -1;
 
 
-void ordenar() {
-  mergeSort(agentes, 0, totalAgentes - 1);
+void ordenar(Individuo[] age) {
+    
+
+  mergeSort(age, 0, totalAgentes - 1);
 
   // Preenche top5 com os 5 maiores indivíduos (em ordem decrescente)
   for (int t = 0; t < 5; t++) {
-    top5[t] = agentes[totalAgentes - 1 - t];
+    top5[t] = age[totalAgentes - 1 - t];
   }
 }
 
