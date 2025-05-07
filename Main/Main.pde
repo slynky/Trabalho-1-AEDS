@@ -110,7 +110,7 @@ void draw() {
   int mostrados = 0;
   for (int k = totalAgentes - 1; k >= 0 && mostrados < 5; k--){
     if (agentes[k] != null){
-      text("Agente #" + k + " infectou " + agentes[k].contador + " pessoa(s)", 20, height - 100 + 20 * mostrados);
+      text("Agente ID " + agentes[k].id + " infectou " + agentes[k].contador + " pessoa(s)", 20, height - 100 + 20 * mostrados);
       mostrados++;
     }
   }
