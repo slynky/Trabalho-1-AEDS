@@ -98,6 +98,22 @@ void draw() {
 
     }
   }
+  
+  //ordenar();
+
+  // ranking dos 5 que mais infectaram
+  fill(0);
+  textSize(16);
+  textAlign(LEFT);
+  
+  text("Ranking - mais infectaram:", 20, height - 120);
+  int mostrados = 0;
+  for (int k = totalAgentes - 1; k >= 0 && mostrados < 5; k--){
+    if (agentes[k] != null){
+      text("Agente #" + k + " infectou " + agentes[k].contador + " pessoa(s)", 20, height - 100 + 20 * mostrados);
+      mostrados++;
+    }
+  }
 
 }
 
