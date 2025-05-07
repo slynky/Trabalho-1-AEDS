@@ -99,7 +99,9 @@ void draw() {
     }
   }
   
-  //ordenar();
+  
+  ordenar();
+
 
   // ranking dos 5 que mais infectaram
   fill(0);
@@ -108,9 +110,9 @@ void draw() {
   
   text("Ranking - mais infectaram:", 20, height - 120);
   int mostrados = 0;
-  for (int k = totalAgentes - 1; k >= 0 && mostrados < 5; k--){
-    if (agentes[k] != null){
-      text("Agente ID " + agentes[k].id + " infectou " + agentes[k].contador + " pessoa(s)", 20, height - 100 + 20 * mostrados);
+  for (int k = 0; k < 5; k++){
+    if (top5[k] != null){
+      text("Agente ID " + top5[k].id + " infectou " + top5[k].contador + " pessoa(s)", 20, height - 100 + 20 * mostrados);
       mostrados++;
     }
   }

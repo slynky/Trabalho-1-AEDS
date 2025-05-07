@@ -1,7 +1,14 @@
-
+Individuo[] top5 = new Individuo[5];
 int i = -1, j = -1;
+
+
 void ordenar() {
   mergeSort(agentes, 0, totalAgentes - 1);
+
+  // Preenche top5 com os 5 maiores indivíduos (em ordem decrescente)
+  for (int t = 0; t < 5; t++) {
+    top5[t] = agentes[totalAgentes - 1 - t];
+  }
 }
 
 
@@ -28,7 +35,7 @@ void merge(Individuo[] arr, int l, int m, int r) {
 
   while (x < n1 && y < n2) {
     i = k; // Atualiza visualização
-    delay(100); // delay
+
    if (L[x].contador <= R[y].contador) {
       arr[k] = L[x];
       x++;
@@ -41,13 +48,13 @@ void merge(Individuo[] arr, int l, int m, int r) {
 
   while (x < n1) {
     i = k;
-    delay(100); // delay
+
     arr[k++] = L[x++];
   }
 
   while (y < n2) {
     i = k;
-    delay(100); // delay
+
     arr[k++] = R[y++];
   }
 
