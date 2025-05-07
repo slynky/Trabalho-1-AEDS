@@ -13,7 +13,7 @@ class Individuo{
   int y;
   Estado estado;
   int tempoReacao; //random //movimentação e transmissão da doença). Por exemplo, a cada 30 a 120 frames, ele escolhe uma célula vizinha vazia aleatoriamente para se mover.
-  int tempoInfectado;
+  int tempoInfectado = 0;
   int contador;
   
   Individuo(int x, int y, Estado estado){

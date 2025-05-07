@@ -1,5 +1,5 @@
 // Tamanho do grid
-int tamanho = 60;
+int tamanho = 40;
 
 // Grid onde -1 significa célula vazia e qualquer outro valor é índice no vetor de agentes
 int grid[][] = new int[tamanho][tamanho];
@@ -7,6 +7,7 @@ int grid[][] = new int[tamanho][tamanho];
 // Vetor com até 200 agentes
 Individuo agentes[] = new Individuo[200];
 int totalAgentes = 0;
+int nA = 100; //numero de agentes inicialmente
 
 void setup() {
   frameRate(60);
@@ -18,14 +19,14 @@ void setup() {
     }
   }
 
-  // Cria até 50 agentes em posições aleatórias não ocupadas
-  while (totalAgentes < 50) {
+  while (totalAgentes < nA) {
     int x = int(random(tamanho));
     int y = int(random(tamanho));
     if (grid[x][y] == -1) {
       agentes[totalAgentes] = new Individuo(x, y, random(1) < 0.6 ? Estado.SUSCETIVEL : Estado.INFECTADO);
       grid[x][y] = totalAgentes;
       totalAgentes++;
+      
     }
   }
 }
@@ -33,12 +34,9 @@ void draw() {
   background(255);
   MostraGrid();
 
-  // Mostra todos os agentes com a cor baseada no estado
-  float l = width / float(tamanho);
-  float h = height / float(tamanho);
-
   for (int i = 0; i < totalAgentes; i++) {
     Individuo ind = agentes[i];
+    if (ind == null) continue;
 
     
     switch (ind.estado) {
@@ -51,25 +49,25 @@ void draw() {
       case IMUNE:
         fill(0, 255, 0); // Verde
         break;
-    }
-
-    float px = ind.x * l + l / 2;
-    float py = ind.y * h + h / 2;
-    ellipse(px, py, l * 0.8, h * 0.8); // círculo representando o agente
+      }
   }
 
   // Descobre a célula clicada
   int i = int(mouseX / (width / float(tamanho)));
   int j = int(mouseY / (height / float(tamanho)));
 
-  for (Individuo ind : agentes) {
-    if (ind == null) continue;
-    if ((frameCount % ind.tempoReacao) == 0) {
-       move();
+   for (int g = 0; g < totalAgentes; g++) {
+    if (agentes[g] == null) continue;
+    if ((frameCount % agentes[g].tempoReacao) == 0) {
+
+       move(agentes[g] ,g);
     }
-    if ((frameCount % ind.tempoReacao) == 0 && ind.estado == Estado.INFECTADO) {
-      infecta(ind);
+    if (agentes[g].estado == Estado.IMUNE)continue;
+    if ((frameCount % agentes[g].tempoReacao) == 0 && agentes[g].estado == Estado.INFECTADO) {
+      infecta(g);
     }
+    if (agentes[g].estado == Estado.INFECTADO) agentes[g].tempoInfectado++; //conta o tempo para ser curado
+    if (agentes[g].tempoInfectado >= (agentes[g].tempoReacao * 20) ) agentes[g].estado = Estado.IMUNE; //CURA
   }
 
   // Botão esquerdo: infecta
@@ -77,6 +75,11 @@ void draw() {
     if (grid[i][j] != -1) {
       int z = grid[i][j];
       agentes[z].estado = Estado.INFECTADO;
+    } else if (totalAgentes < 200){
+        agentes[totalAgentes] = new Individuo(i, j, Estado.INFECTADO);
+        grid[i][j] = totalAgentes;
+        totalAgentes++;
+
     }
   }
 
@@ -84,10 +87,18 @@ void draw() {
   if (mousePressed && mouseButton == RIGHT && i < tamanho && j < tamanho && i >= 0 && j >= 0) {
     if (grid[i][j] != -1) {
       int z = grid[i][j];
-      agentes[z].estado = Estado.SUSCETIVEL;
+      if (z >= 0 && z < agentes.length && agentes[z] != null) {
+        agentes[z].estado = Estado.SUSCETIVEL;  // ou INFECTADO
+      }
+
+    } else if (totalAgentes < 200){
+        agentes[totalAgentes] = new Individuo(i, j, Estado.SUSCETIVEL);
+        grid[i][j] = totalAgentes;
+        totalAgentes++;
+
     }
   }
-  thread("ordenar");
+
 }
 
 
@@ -122,23 +133,37 @@ void MostraGrid() {
   }
 }
 
-void move() {
+void move(Individuo ind, int idx) {
+  int dx, dy;
+  // Gera um deslocamento apenas em −1, 0 ou +1 para cada eixo
+  do {
+    dx = ind.x + (int)random(3) - 1;  // random(3) retorna [0,3), subtrai 1 → {−1,0,1}
+    dy = ind.y + (int)random(3) - 1;
+  } while (dx < 0 || dy < 0 || dx >= tamanho || dy >= tamanho);
 
+  // Se a célula destino estiver livre, efetua a troca
+  if (grid[dx][dy] == -1) {
+    grid[ind.x][ind.y] = -1;   // limpa a célula antiga
+    ind.x = dx;                // atualiza a posição no objeto
+    ind.y = dy;
+    grid[dx][dy] = idx;        // marca a nova célula
+  }
 }
 
 
 
-void infecta(Individuo ind) {
+
+void infecta(int g) {
   int ix = 0, iy = 0;
 
   // Gera deslocamento diferente de (0,0)
-  while (ix == 0 && iy == 0) {
-    ix = int(random(-1, 2)); // -1, 0 ou 1
-    iy = int(random(-1, 2)); // -1, 0 ou 1
+  while (ix == 0 && iy == 0 ) {
+    ix = (int)random(3) - 1;// -1, 0 ou 1
+    iy = (int)random(3) - 1; // -1, 0 ou 1
   }
 
-  int nx = ind.x + ix;
-  int ny = ind.y + iy;
+  int nx = agentes[g].x + ix;
+  int ny = agentes[g].y + iy;
 
   // Verifica se está dentro do grid
   if (nx >= 0 && nx < tamanho && ny >= 0 && ny < tamanho) {
@@ -150,8 +175,10 @@ void infecta(Individuo ind) {
       if (vizinho.estado == Estado.SUSCETIVEL) {
         if (random(1) < 0.8) {
           vizinho.estado = Estado.INFECTADO;
+          agentes[g].contador++;
+          agentes[alvo] = vizinho;
         }
       }
-    }
+    } 
   }
 }
